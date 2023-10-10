@@ -1,0 +1,43 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    height: 100vh;
+    display: grid;    
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 10fr;
+}
+
+header nav {
+    height: 100%;
+    background: blue;
+    display: flex;
+    justify-content: center;
+    gap: 10%;
+}
+
+nav p {
+    background: gray;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+}
+
+#tests {
+    margin: 0 3%;
+    height: 100%;
+    display: grid;
+    gap: 10px; 
+    grid-template-columns: repeat(auto-fill, 5em);
+    justify-content: center;
+    align-content: start;
+}
+.test {
+    height: 5vh;
+    background-color:  pink;
+}
+
