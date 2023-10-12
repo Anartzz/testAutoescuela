@@ -16,14 +16,15 @@ create table tests (
 create table preguntas (
     id int(2) primary key, 
     idTests int(1) references tests(id),
-    pregunta varchar(100),
-    ayuda varchar(1000)
+    pregunta varchar(500),
+    foto varchar(40),
+    ayuda varchar(7000)
 );
 
 create table respuestas (
     id int(1) auto_increment primary key,
-    idPreuntas int(1) references preguntas(id),
-    respuesta varchar(100),
+    idPreguntas int(1) references preguntas(id),
+    respuesta varchar(500),
     correcta int(1)
 );
 
