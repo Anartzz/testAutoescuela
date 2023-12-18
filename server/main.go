@@ -30,6 +30,7 @@ func mandarArchivo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "../app/index.html")
