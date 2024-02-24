@@ -1,4 +1,3 @@
-data/node_modules/
-data/package-lock.json
-data/package.json
+node_modules/
+*.o
 

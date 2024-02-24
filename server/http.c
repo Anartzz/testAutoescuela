@@ -10,7 +10,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
-#include "http.h"
+#include "include/http.h"
 
 #define BUFFER_SIZE 1000//104857600 malloc para que deje
 #define headerSize 100;
@@ -40,6 +40,8 @@ const char* get_mime_type(const char* file) {
         return "image/jpeg";
     } else if (strcasecmp(file_ext, "png") == 0) {
         return "image/png";
+    } else if (strcasecmp(file_ext, "js") == 0) {
+        return "text/javascript";
     } else {
         return "application/octet-stream";
     }
@@ -55,21 +57,42 @@ httpRequest* getHttpRequest(char* buffer) {
     i++;
     headers->method = cont;
     cont = 0;
-    for (; buffer[i] != ' ' && buffer[i] != '\n' && buffer[i] != '?'; i++) {
+
+    for (;buffer[i] != ' ' && buffer[i] != '?'; i++) {
         cont++;
     }
-    char* uri = calloc((cont + 1), sizeof(char));
+
+    char* uri = malloc((cont + 1) * sizeof(char));
     for (int e = 0; e < cont; e++) {
-        if (buffer[i - cont + e] == '.') {
-            
-        }
         uri[e] = buffer[i - cont + e];
     }
+    uri[cont] = '\0';
     headers->uri = uri;
+
+    if (buffer[i] == '?') {
+        i++;
+        cont = 0;
+        for (; buffer[i] != ' '; i++) {
+            cont++;        
+        }
+        char* questionMark = malloc((cont + 1) * sizeof(char));
+        for (int e = 0; e < cont; e++) {
+            questionMark[e] = buffer[i - cont + e];
+        }
+        questionMark[cont] = '\0';
+        headers->questionMark = questionMark;
+    } else {
+        headers->questionMark = NULL;
+    }
+
+
     return headers;
 }
 
 void freeHttpRequest(httpRequest* request) {
+    if (request->questionMark) {
+        free(request->questionMark);
+    }
     free(request->uri);
     free(request);
 }
@@ -79,11 +102,12 @@ void end(httpRequest* request, httpResponse* response) {
     int responseSize = response->dataSize + headerSize;
     char* strResponse = malloc(responseSize);
 
-    responseSize = snprintf(strResponse, responseSize, "HTTP/1.1 %i\nContent-Type: %s\n\n%s", 
+    responseSize = snprintf(strResponse, responseSize, "HTTP/1.1 %i\nContent-Type: %s\ncharset=UTF-8\n\n%s", 
             response->statusCode,
             response->ContentType,
             (char*) response->data
             );
+    printf("\n%s\n", strResponse);
     write(response->clientFd, strResponse, responseSize);
 
     free(strResponse);
@@ -92,9 +116,7 @@ void end(httpRequest* request, httpResponse* response) {
     free(response);
 }
 
-//void endSendFile()
-
-int runHttpServer(int PORT, void (*requesHandler)(httpRequest*, httpResponse*)) {
+int runHttpServer(int PORT, void (*requestHandler)(httpRequest*, httpResponse*)) {
     struct sockaddr_in clientAddr, serverAddr = {
         .sin_family = AF_INET, 
         .sin_addr.s_addr = INADDR_ANY, 
@@ -146,11 +168,12 @@ int runHttpServer(int PORT, void (*requesHandler)(httpRequest*, httpResponse*)) 
             continue;
         }
 
-        printf("\n%s\n", buffer);
         httpResponse* response = malloc(sizeof(httpResponse));
         response->clientFd = clientFd;
         response->statusCode = 200;
-        requesHandler(getHttpRequest(buffer), response);
+        response->ContentType = "text/palin";
+        printf("%s", buffer);
+        requestHandler(getHttpRequest(buffer), response);
     }
 
     close(serverFd);

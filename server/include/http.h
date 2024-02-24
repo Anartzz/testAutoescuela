@@ -4,6 +4,7 @@
 typedef struct {
     int method;
     char* uri;
+    char* questionMark;
     float version;
 } httpRequest;
 
